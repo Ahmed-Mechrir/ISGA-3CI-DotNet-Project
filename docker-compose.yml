@@ -1,0 +1,11 @@
+# Local SQL Server-compatible engine for macOS/Linux (ASP.NET Identity + EF migrations).
+# Run: docker compose up -d
+# Connection string matches appsettings.Development.json DefaultConnection (sa password below).
+services:
+  asvs-sql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Dev_Passw0rd!"
+    ports:
+      - "1433:1433"

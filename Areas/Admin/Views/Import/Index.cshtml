@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Import ASVS CSV";
+    var import = ViewBag.ImportResult as ImportResultDto;
+}
+
+<h1 class="h3 mb-3">Import OWASP checklist (CSV)</h1>
+<p class="mb-4 text-muted">
+    Header mapping recognises <code>#</code>, <code>ID</code>, <code>Category</code>, <code>ASVS Level</code>,
+    <code>Verification Requirement</code>, <code>CWE</code>, <code>NIST</code>, <code>Valid</code>.
+    Separator comma or semicolon is auto detected.
+</p>
+
+@if (import != null)
+{
+    <div class="alert @(import.Errors.Count == 0 ? "alert-success" : "alert-warning") mb-4">
+        Inserted <strong>@import.Inserted</strong>, updated <strong>@import.Updated</strong>.
+        @if (import.Errors.Count > 0)
+        {
+            <div class="mt-2 fw-semibold">Warnings / issues</div>
+            <ul class="mb-0 small">
+                @foreach (var e in import.Errors)
+                {
+                    <li>@e</li>
+                }
+            </ul>
+        }
+    </div>
+}
+
+<div class="alert alert-secondary small">
+    <a href="~/sample-data/asvs_minimal_sample.csv">Download bundled sample CSV</a> — replace with your official OWASP CSV for production workloads.
+</div>
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Upload" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label class="form-label">CSV file</label>
+                <input class="form-control" type="file" name="file" accept=".csv,text/csv" />
+            </div>
+            <button type="submit" class="btn btn-primary">Run import</button>
+        </form>
+    </div>
+</div>

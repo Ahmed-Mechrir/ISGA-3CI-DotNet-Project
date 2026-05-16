@@ -1,0 +1,7 @@
+"#","Category","Area","ASVS Level","CWE","NIST","Verification Requirement","Valid"
+"V1.1.1","V1 Architecture, design and threat modelling","Design","1","","","Documentation exists for roles and trust boundaries.","" 
+"V2.2.2","V2 Authentication","Passwords","2","","","Passwords enforce minimum complexity per policy.","" 
+"V4.3.3","V4 Encode and sanitize data","Injection","3","","777","Parameterized queries are used where appropriate.","" 
+"V5.1.1","V5 Validation, sanitization","Input","2","","SI-10","User input validated on trusted server/API.","" 
+"V7.1.1","V7 Sessions","Tokens","3","","IA-12","Sessions invalidated on logout and password reset.","" 
+"V14.6.8","V14 Encryption","Algorithms","L3","","IA-7","Symmetric keys rotated per policy.","" 

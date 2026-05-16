@@ -1,0 +1,50 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="auth-page py-5">
+    <div class="auth-card card">
+        <div class="card-body auth-card-header border-0 pb-2">
+            <div class="app-brand-mark mx-auto mb-3">A</div>
+            <h1 class="h4 fw-semibold mb-1">Create auditor account</h1>
+            <p class="auth-meta mb-0">New users receive the Auditor role for assessments and dashboards.</p>
+        </div>
+        <div class="card-body pt-2 px-4 pb-4">
+            <form asp-action="Register" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small border-0"></div>
+
+                <div class="mb-3">
+                    <label asp-for="DisplayName" class="form-label fw-medium small"></label>
+                    <input asp-for="DisplayName" class="form-control" placeholder="Jane Doe" />
+                    <span asp-validation-for="DisplayName" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label fw-medium small"></label>
+                    <input asp-for="Email" class="form-control" autocomplete="username" placeholder="you@organisation.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label fw-medium small"></label>
+                    <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                    <div class="form-text small">Minimum 10 characters with digit and special character.</div>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="ConfirmPassword" class="form-label fw-medium small"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">Register</button>
+                <div class="text-center mt-4 pt-3 border-top auth-meta">
+                    Already have access? <a asp-action="Login" class="fw-semibold text-decoration-none">Log in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

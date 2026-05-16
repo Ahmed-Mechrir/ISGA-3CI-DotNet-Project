@@ -1,0 +1,67 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="auth-page">
+    <div class="auth-card card">
+        <div class="card-body auth-card-header border-0">
+            <div class="app-brand-mark mx-auto mb-3">A</div>
+            <h1 class="h4 fw-semibold mb-1">Welcome back</h1>
+            <p class="auth-meta mb-0">Sign in to manage assessments and reports.</p>
+        </div>
+        <div class="card-body pt-2 px-4 pb-4">
+            @if (ViewData["SeedAdminEmail"] is string seedEmail &&
+                 ViewData["SeedAdminPassword"] is string seedPw &&
+                 !string.IsNullOrWhiteSpace(seedEmail) &&
+                 !string.IsNullOrWhiteSpace(seedPw))
+            {
+                <div class="alert alert-light border small mb-4" role="note">
+                    <div class="d-flex gap-2">
+                        <span class="text-primary mt-1"><i class="bi bi-key-fill"></i></span>
+                        <div>
+                            <strong class="d-block text-dark-emphasis mb-2">Development — seeded administrator</strong>
+                            <dl class="row mb-0 auth-meta gx-3">
+                                <dt class="col-3 text-secondary">Email</dt>
+                                <dd class="col-9 fw-medium text-dark font-monospace">@seedEmail</dd>
+                                <dt class="col-3 text-secondary">Password</dt>
+                                <dd class="col-9 fw-medium text-dark font-monospace">@seedPw</dd>
+                            </dl>
+                            <span class="d-block mt-2 text-muted">Uses <code>AdminSeed</code> in appsettings · change password after first login in production.</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small border-0" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label fw-medium small"></label>
+                    <input asp-for="Email" class="form-control form-control-lg" autocomplete="username" placeholder="you@organisation.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label fw-medium small"></label>
+                    <input asp-for="Password" class="form-control form-control-lg" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="form-check mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label auth-meta"></label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">Log in</button>
+                <div class="text-center mt-4 pt-3 border-top">
+                    <span class="auth-meta">No account yet?</span>
+                    <a asp-action="Register" class="btn btn-link fw-semibold p-0 align-baseline ms-1">Create auditor account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

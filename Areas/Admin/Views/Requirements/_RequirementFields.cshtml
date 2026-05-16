@@ -1,0 +1,48 @@
+@model RequirementEditViewModel
+
+<div class="col-md-4">
+    <label asp-for="RequirementRef" class="form-label"></label>
+    <input asp-for="RequirementRef" class="form-control" />
+    <span asp-validation-for="RequirementRef" class="text-danger"></span>
+</div>
+<div class="col-md-4">
+    <label asp-for="Chapter" class="form-label"></label>
+    <input asp-for="Chapter" class="form-control" />
+    <span asp-validation-for="Chapter" class="text-danger"></span>
+</div>
+<div class="col-md-4">
+    <label asp-for="Area" class="form-label"></label>
+    <input asp-for="Area" class="form-control" />
+    <span asp-validation-for="Area" class="text-danger"></span>
+</div>
+<div class="col-md-3">
+    <label asp-for="Level" class="form-label"></label>
+    <input asp-for="Level" class="form-control" type="number" />
+    <span asp-validation-for="Level" class="text-danger"></span>
+</div>
+<div class="col-md-3">
+    <label asp-for="LevelRaw" class="form-label"></label>
+    <input asp-for="LevelRaw" class="form-control" />
+    <span asp-validation-for="LevelRaw" class="text-danger"></span>
+</div>
+<div class="col-md-3">
+    <label asp-for="Cwe" class="form-label"></label>
+    <input asp-for="Cwe" class="form-control" />
+    <span asp-validation-for="Cwe" class="text-danger"></span>
+</div>
+<div class="col-md-3">
+    <label asp-for="Nist" class="form-label"></label>
+    <input asp-for="Nist" class="form-control" />
+    <span asp-validation-for="Nist" class="text-danger"></span>
+</div>
+<div class="col-12">
+    <label asp-for="VerificationRequirement" class="form-label"></label>
+    <textarea asp-for="VerificationRequirement" class="form-control" rows="4"></textarea>
+    <span asp-validation-for="VerificationRequirement" class="text-danger"></span>
+</div>
+<div class="col-12">
+    <div class="form-check">
+        <input asp-for="PreMarkedNotApplicable" class="form-check-input"/>
+        <label asp-for="PreMarkedNotApplicable" class="form-check-label"></label>
+    </div>
+</div>

@@ -1,0 +1,150 @@
+@model PublicChecklistPageViewModel
+@{
+    ViewData["Title"] = "Checklist";
+}
+
+<section class="row g-4 align-items-stretch mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100 text-white app-hero">
+            <div class="card-body p-4">
+                <h1 class="h3 fw-semibold mb-3">Requirements</h1>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-dark">@Model.TotalCount</span>
+                    @if (Model.DistinctChapterCount > 0)
+                    {
+                        <span class="badge bg-white bg-opacity-25">@Model.DistinctChapterCount chapters</span>
+                    }
+                    @foreach (var lv in Model.RequirementsPerLevel)
+                    {
+                        <span class="badge bg-white bg-opacity-25">L@(lv.Level): @lv.Count</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex flex-column p-4 gap-3">
+                <h2 class="h6 text-muted mb-0">Actions</h2>
+                @if (User.Identity?.IsAuthenticated != true)
+                {
+                    <div class="d-grid gap-2 mt-auto">
+                        <a class="btn btn-primary" asp-controller="Account" asp-action="Login">Log in</a>
+                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Account" asp-action="Register">Register</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-grid gap-2 mt-auto">
+                        <a class="btn btn-primary" asp-controller="Assessment" asp-action="Index">Assessments</a>
+                        <a class="btn btn-outline-primary" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                        @if (User.IsInRole(Roles.Admin))
+                        {
+                            <a class="btn btn-outline-secondary btn-sm" asp-area="Admin" asp-controller="Import" asp-action="Index">Admin</a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="alert alert-warning shadow-sm mb-0">
+        No requirements loaded.
+        @if (User.IsInRole(Roles.Admin))
+        {
+            <a asp-area="Admin" asp-controller="Import" asp-action="Index">Import</a>
+        }
+    </div>
+}
+else
+{
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-6">
+                    <label for="chkSearch" class="form-label small text-muted mb-1">Search</label>
+                    <input type="search" id="chkSearch" class="form-control form-control-sm" autocomplete="off"
+                           placeholder="…" />
+                </div>
+                <div class="col-md-6">
+                    <label for="chkChapter" class="form-label small text-muted mb-1">Chapter</label>
+                    <select id="chkChapter" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var ch in Model.ChapterNamesSorted)
+                        {
+                            <option value="@ch">@ch</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="text-nowrap">Ref</th>
+                        <th>Chapter</th>
+                        <th>Area</th>
+                        <th class="text-nowrap">Lvl</th>
+                        <th>Requirement</th>
+                        <th class="text-nowrap">Src N/A</th>
+                    </tr>
+                    </thead>
+                    <tbody id="checklist-body">
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr data-chapter="@r.Chapter">
+                            <td class="fw-semibold text-nowrap">@r.RequirementRef</td>
+                            <td>@r.Chapter</td>
+                            <td>@r.Area</td>
+                            <td><span class="badge bg-info text-dark">@r.Level</span></td>
+                            <td>@r.VerificationRequirement</td>
+                            <td>
+                                @if (r.PreMarkedNotApplicable)
+                                {
+                                    <span class="badge bg-secondary">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        (function () {
+            const tbody = document.getElementById('checklist-body');
+            const inp = document.getElementById('chkSearch');
+            const sel = document.getElementById('chkChapter');
+            if (!tbody || !inp || !sel) return;
+
+            function apply() {
+                const q = (inp.value || '').trim().toLowerCase();
+                const ch = sel.value || '';
+                tbody.querySelectorAll('tr').forEach(function (tr) {
+                    var rowCh = tr.getAttribute('data-chapter') || '';
+                    var text = tr.textContent.toLowerCase();
+                    var okCh = !ch || rowCh === ch;
+                    var okQ = !q || text.indexOf(q) !== -1;
+                    tr.style.display = okCh && okQ ? '' : 'none';
+                });
+            }
+
+            inp.addEventListener('input', apply);
+            sel.addEventListener('change', apply);
+        })();
+    </script>
+}

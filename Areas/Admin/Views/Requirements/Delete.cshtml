@@ -1,0 +1,12 @@
+@model RequirementListViewModel
+@{
+    ViewData["Title"] = "Delete requirement";
+}
+
+<h1 class="h4 mb-3">Delete @Model.RequirementRef?</h1>
+<p class="text-muted">You cannot delete a requirement that is referenced by an assessment entry.</p>
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-link">Cancel</a>
+</form>

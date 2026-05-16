@@ -1,0 +1,21 @@
+@model AssessmentCreateInputModel
+@{
+    ViewData["Title"] = "New assessment";
+}
+
+<h1 class="h4 mb-3">Create assessment workbook</h1>
+<p class="text-muted small">Adds one row per published requirement — all marked <strong>Pending</strong> until you update them.</p>
+<form asp-action="Create" method="post" class="col-lg-6">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" placeholder="e.g. ACME SaaS pilot – Q2" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-link">Cancel</a>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

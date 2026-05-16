@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Administration";
+}
+
+<h1 class="h3 mb-3">Administrator workspace</h1>
+<p>Use the actions below to keep the authoritative ASVS dataset current.</p>
+<div class="list-group mb-5 shadow-sm">
+    <a asp-area="Admin" asp-controller="Import" asp-action="Index"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        CSV import wizard
+        <span class="badge bg-primary rounded-pill">Step 1</span>
+    </a>
+    <a asp-area="Admin" asp-controller="Requirements" asp-action="Index"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        Requirements CRUD
+        <span class="badge bg-secondary rounded-pill">Maintenance</span>
+    </a>
+</div>
+
+<div class="alert alert-info mb-0 small">
+    The public checklist is read-only. Auditors authenticate to create workbook assessments referencing these rows.
+</div>

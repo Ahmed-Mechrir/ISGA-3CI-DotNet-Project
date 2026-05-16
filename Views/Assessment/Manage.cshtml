@@ -1,0 +1,115 @@
+@model ManageAssessmentPageViewModel
+@{
+    ViewData["Title"] = $"Assess — {Model.Title}";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-0">@Model.Title</h1>
+        <small class="text-muted">Statuses: Valid, Not Valid, Not Applicable, Pending. Rows marked source N/A are read-only.</small>
+    </div>
+    <div class="btn-group btn-group-sm">
+        <a class="btn btn-outline-secondary" asp-controller="Dashboard" asp-action="Index" asp-route-assessmentId="@Model.AssessmentId">Dashboard</a>
+        <a class="btn btn-outline-secondary" asp-controller="Report" asp-action="Benchmark" asp-route-assessmentId="@Model.AssessmentId">Benchmark</a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <label class="form-label small mb-1">Technology context for AI explanations</label>
+        <input type="text" id="explainTech" class="form-control form-control-sm" placeholder="Optional, e.g. ASP.NET Core 9 MVC" />
+    </div>
+</div>
+
+@foreach (var row in Model.Rows)
+{
+    <form asp-action="UpdateRow" method="post" class="border rounded p-3 mb-3 bg-white shadow-sm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="assessmentId" value="@Model.AssessmentId" />
+        <input type="hidden" name="requirementId" value="@row.RequirementEntityId" />
+
+        <div class="row g-2 align-items-start">
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="fw-semibold">@row.RequirementRef</span>
+                    <span class="badge bg-secondary">L@row.Level</span>
+                    <span class="text-muted small">@row.Chapter — @row.Area</span>
+                </div>
+                <p class="small mb-0">@row.RequirementText</p>
+            </div>
+            <div class="col-lg-4">
+                @if (row.SourceNotApplicable)
+                {
+                    <span class="badge bg-dark">Source checklist N/A</span>
+                }
+                else
+                {
+                    <label class="form-label small mb-1">Status</label>
+                    <select name="Status" class="form-select form-select-sm mb-2">
+                        @foreach (var s in Enum.GetValues<AssessmentStatus>())
+                        {
+                            if (row.Status == s)
+                            {
+                                <option value="@s" selected="selected">@s</option>
+                            }
+                            else
+                            {
+                                <option value="@s">@s</option>
+                            }
+                        }
+                    </select>
+                    <label class="form-label small mb-1">Evidence reference</label>
+                    <input name="SourceCodeReference" value="@row.SourceCodeReference" class="form-control form-control-sm mb-2" />
+                    <label class="form-label small mb-1">Tool</label>
+                    <input name="ToolUsed" value="@row.ToolUsed" class="form-control form-control-sm mb-2" />
+                    <label class="form-label small mb-1">Comment</label>
+                    <textarea name="Comment" class="form-control form-control-sm mb-2" rows="2">@row.Comment</textarea>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary btn-sm">Save row</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openExplainModal(@row.RequirementEntityId)">AI explain</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
+}
+
+<!-- AI modal -->
+<div class="modal fade" id="aiModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">AI-assisted explanation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="aiBody" class="small" style="white-space:pre-wrap"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function openExplainModal(reqId) {
+            const modal = new bootstrap.Modal(document.getElementById('aiModal'));
+            const body = document.getElementById('aiBody');
+            body.textContent = 'Loading…';
+            modal.show();
+            const tech = document.getElementById('explainTech')?.value || '';
+            const res = await fetch('/api/requirements/' + reqId + '/explain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ technology: tech })
+            });
+            const text = await res.text();
+            if (!res.ok) {
+                body.textContent = text;
+                return;
+            }
+            const data = JSON.parse(text);
+            body.textContent = data.explanation || '';
+        }
+    </script>
+}

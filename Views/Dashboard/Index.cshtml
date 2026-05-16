@@ -1,0 +1,144 @@
+@model DashboardStatsDto?
+@{
+    ViewData["Title"] = "Dashboard";
+    var items = ViewBag.Assessments as IList<Assessment> ?? new List<Assessment>();
+    var sid = ViewBag.SelectedAssessmentId as int?;
+}
+
+<div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Assessment dashboard</h1>
+        <p class="text-muted mb-0">Security score mirrors compliance across applicable controls only.</p>
+    </div>
+    @if (items.Count > 0)
+    {
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 small">Assessment</label>
+            <select name="assessmentId" class="form-select form-select-sm"
+                    style="min-width:12rem;"
+                    onchange="this.form.submit()">
+                @foreach (Assessment a in items)
+                {
+                    if (sid == a.Id)
+                    {
+                        <option value="@a.Id" selected>@a.Title</option>
+                    }
+                    else
+                    {
+                        <option value="@a.Id">@a.Title</option>
+                    }
+                }
+            </select>
+        </form>
+    }
+</div>
+
+@if (ViewBag.ChartError is string err)
+{
+    <div class="alert alert-warning">@err</div>
+}
+
+@if (Model != null && sid.HasValue)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase">Security score</div>
+                    <div class="display-6 text-primary fw-bold">@Model.SecurityScore</div>
+                    <small class="text-muted">Validated ÷ applicable × 100</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase">Compliance %</div>
+                    <div class="display-6 fw-bold">@Model.CompliancePct.ToString("0.#")%</div>
+                    <div class="progress mt-2" style="height:8px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width:@($"{Model.CompliancePct}%");"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase">Applicable controls</div>
+                    <div class="fs-4 fw-semibold">@Model.ApplicableTotal</div>
+                    <small class="text-muted">Excludes source / project N/A</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase">Open issues</div>
+                    <div class="fs-4 fw-semibold text-danger">@(Model.NotValid + Model.Pending)</div>
+                    <small class="text-muted">Not valid + pending</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5">Chapter conformance (stacked)</h2>
+            <div style="height:360px;"><canvas id="catChart"></canvas></div>
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    @if (Model != null)
+    {
+        var chartRows = JsonSerializer.Serialize(Model.Chapters.Select(c =>
+            new { c.Chapter, c.Applicable, c.Valid, pct = Math.Round(c.CompliancePct, 1) }));
+        <script>
+            (function () {
+                const el = document.getElementById('catChart');
+                if (!el) return;
+                const data = @Html.Raw(chartRows);
+                if (!Array.isArray(data) || data.length === 0) {
+                    el.parentElement.innerHTML = '<p class="text-muted mb-0 small">No chapters to chart.</p>';
+                    return;
+                }
+                const labels = data.map(x => x.Chapter || '(blank)');
+                const valid = data.map(x => x.Valid);
+                const rest = data.map(x => Math.max(x.Applicable - x.Valid, 0));
+                new Chart(el, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'Valid',
+                                data: valid,
+                                backgroundColor: 'rgba(13,110,253,0.8)',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Remaining applicable',
+                                data: rest,
+                                backgroundColor: 'rgba(253,126,20,0.85)',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: {
+                            x: { stacked: true, beginAtZero: true },
+                            y: { stacked: true }
+                        }
+                    }
+                });
+            })();
+        </script>
+    }
+}
